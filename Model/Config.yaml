@@ -1,6 +1,6 @@
 ---
 # === Configure Main function === #
-category: Aerial
+category: NBA
 data_name: Frame
 mask_name: Sensing
 model_name: Decoder-TNN

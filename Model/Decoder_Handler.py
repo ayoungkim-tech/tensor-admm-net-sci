@@ -22,15 +22,15 @@ class Decoder_Handler(Basement_Handler):
         self.data_assignment(dataset_name)
 
         # Data Generator
-        #self.gen_train = Data_Generator_File(dataset_name,self.set_train,self.sense_mask,self.batch_size,is_training=True)
-        #self.gen_valid = Data_Generator_File(dataset_name,self.set_valid,self.sense_mask,self.batch_size,is_training=False)
+        self.gen_train = Data_Generator_File(dataset_name,self.set_train,self.sense_mask,self.batch_size,is_training=True)
+        self.gen_valid = Data_Generator_File(dataset_name,self.set_valid,self.sense_mask,self.batch_size,is_training=False)
         self.gen_test  = Data_Generator_File(dataset_name,self.set_test,self.sense_mask,self.batch_size,is_training=False)
         
         # Define the general model and the corresponding input
         shape_meas = (self.batch_size,) + self.sense_mask.shape[:2] + (1,)
         shape_sense = self.sense_mask.shape
         shape_truth,shape_cross = (self.batch_size,)+shape_sense, shape_sense+(self.sense_mask.shape[-1],)
-        print shape_meas,shape_sense,shape_truth,shape_cross
+        print (shape_meas,shape_sense,shape_truth,shape_cross)
         
         self.meas_sample = tf.placeholder(tf.float32, shape=shape_meas, name='input_meas')
         self.initial_net = tf.placeholder(tf.float32, shape=shape_truth,name='input_init')
@@ -75,10 +75,10 @@ class Decoder_Handler(Basement_Handler):
         self.set_test, disp_test  = scalar.seperate_normalization(set_test)
         self.test_size  = int(np.ceil(float(disp_test[0]) /self.batch_size))
         
-        #self.set_train,disp_train = scalar.overlap_normalization(set_train)
-        #self.set_valid,disp_valid = scalar.overlap_normalization(set_valid)
-        #self.train_size = int(np.ceil(float(disp_train[0])/self.batch_size))
-        #self.valid_size = int(np.ceil(float(disp_valid[0])/self.batch_size))
+        self.set_train,disp_train = scalar.overlap_normalization(set_train)
+        self.set_valid,disp_valid = scalar.overlap_normalization(set_valid)
+        self.train_size = int(np.ceil(float(disp_train[0])/self.batch_size))
+        self.valid_size = int(np.ceil(float(disp_valid[0])/self.batch_size))
         
     def train_test_valid_assignment(self):
         
@@ -96,9 +96,9 @@ class Decoder_Handler(Basement_Handler):
         print ('Training Started')
         if self.model_config.get('model_filename',None) is not None:
             self.restore()
-            print 'Pretrained Model Downloaded'
+            print ('Pretrained Model Downloaded')
         else:
-            print 'New Model Training'
+            print ('New Model Training')
         epoch_cnt,wait,min_val_loss = 0,0,float('inf')
         
         while epoch_cnt <= self.epochs:
@@ -119,7 +119,7 @@ class Decoder_Handler(Basement_Handler):
             
             # Framework and Visualization SetUp for Training 
             for trained_batch in range(0,self.train_size):
-                (measure_train,ground_train,netinit_train,_) = self.gen_train.next()
+                (measure_train,ground_train,netinit_train,_) = next(self.gen_train)
                 feed_dict_train = {self.meas_sample:measure_train,
                                    self.truth_sample:ground_train,
                                    self.initial_net:netinit_train,
@@ -133,12 +133,12 @@ class Decoder_Handler(Basement_Handler):
                 message = "Train Epoch [%2d/%2d] Batch [%d/%d] lr: %.4f, loss: %.8f psnr: %.4f" % (
                     epoch_cnt, self.epochs, trained_batch, self.train_size, cur_lr, Tresults["loss"][-1], Tresults["psnr"][-1])
                 if trained_batch%10 == 0:
-                    print message
+                    print (message)
                     
             # Framework and Visualization SetUp for Validation
             validation_time = []
             for valided_batch in range(0,self.valid_size):
-                (measure_valid,ground_valid,netinit_valid,index_valid) = self.gen_valid.next()
+                (measure_valid,ground_valid,netinit_valid,index_valid) = next(self.gen_valid)
                 feed_dict_valid = {self.meas_sample:measure_valid,
                                    self.truth_sample:ground_valid,
                                    self.initial_net:netinit_valid,
@@ -154,7 +154,7 @@ class Decoder_Handler(Basement_Handler):
                 Vresults["mse"].append(valid_output['metrics'][2])
                 message = "Valid Epoch [%2d/%2d] Batch [%d/%d] lr: %.4f, loss: %.8f psnr: %.4f" % (
                     epoch_cnt, self.epochs, valided_batch, self.valid_size, cur_lr, Vresults["loss"][-1], Vresults["psnr"][-1])
-            print 'Validation Time:', validation_time
+            print ('Validation Time:', validation_time)
                     
             # Information Logging for Model Training and Validation (Maybe for Curve Plotting)
             Tloss,Vloss = np.mean(Tresults["loss"]),np.mean(Vresults["loss"])
@@ -192,14 +192,14 @@ class Decoder_Handler(Basement_Handler):
 
     def test(self):
         
-        print "Testing Started"
+        print ("Testing Started")
         self.restore()
         
         test_fetches = {'pred_orig':   self.Decoder_valid.decoded_image}
         time_list = []
         for tested_batch in range(0,self.test_size):
-            (measure_test,ground_test,netinit_test,index_test) = self.gen_test.next()
-            print index_test
+            (measure_test,ground_test,netinit_test,index_test) = next(self.gen_test)
+            print (index_test)
             feed_dict_test = {self.meas_sample:measure_test,
                               self.truth_sample:ground_test,
                               self.initial_net:netinit_test,
@@ -214,7 +214,7 @@ class Decoder_Handler(Basement_Handler):
             matcontent[u'truth'],matcontent[u'pred'],matcontent[u'meas'] = ground_test,test_output['pred_orig'],measure_test
             hdf5storage.write(matcontent, '.', self.log_dir+'/Data_Visualization_%d.mat' % (tested_batch), 
                               store_python_metadata=False, matlab_compatible=True)
-            print message
+            print (message)
             
         
     def calculate_scheduled_lr(self, epoch, min_lr=1e-10):

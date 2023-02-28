@@ -18,7 +18,7 @@ def Data_Division(dataset_name,experiment=True):
     sample_truth,sample_meas = seg_direct['orig'],seg_direct['meas']
     file_id_list.append(0)
     file_cnt_list.append((seg_direct['orig'].shape[-1],seg_direct['step'][0][0]))
-    print 'Test Group with %d samples step %d is recorded' % (file_cnt_list[-1][0],file_cnt_list[-1][1])
+    print ('Test Group with %d samples step %d is recorded' % (file_cnt_list[-1][0],file_cnt_list[-1][1]))
     pair_train = (file_id_list,file_cnt_list)
     pair_valid = (file_id_list,file_cnt_list)
     pair_test  = (file_id_list,file_cnt_list)
@@ -43,7 +43,7 @@ def Data_Generator_File(dataset_name, sample_path, mask, batch_size, is_training
     step = np.random.choice(np.linspace(1,step_max,step_max),1,replace=False).astype(np.int16)[0]
     ind_end = truth.shape[-1]-(ratio-1)*step
     index = np.random.choice(ind_end, size=ind_end, replace=False).astype(np.int16)
-    print 'File %d Imported with Step %d Samples Group %d' % (file_ind[folder_id],step,ind_end)
+    print ('File %d Imported with Step %d Samples Group %d' % (file_ind[folder_id],step,ind_end))
     sample_cnt,batch_cnt,list_measure,list_ground,list_netinit,list_index = 0,0,[],[],[],[]
     
     while True:
@@ -80,4 +80,4 @@ def Data_Generator_File(dataset_name, sample_path, mask, batch_size, is_training
             step = np.random.choice(np.linspace(1,step_max,step_max),1,replace=False).astype(np.int16)[0]
             ind_end = truth.shape[-1]-(ratio-1)*step
             index = np.random.choice(ind_end, size=ind_end, replace=False).astype(np.int16)
-            print 'File %d Imported with Step %d Samples Group %d' % (file_ind[folder_id],step,ind_end)
+            print ('File %d Imported with Step %d Samples Group %d' % (file_ind[folder_id],step,ind_end))

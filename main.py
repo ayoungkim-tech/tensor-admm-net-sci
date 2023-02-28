@@ -11,11 +11,11 @@ config_filename = './Model/Config.yaml'
 def main():
     with open(config_filename) as handle:
         model_config = yaml.load(handle)    
-    data_name = os.path.join(os.path.abspath('..'),'Data',model_config['category'],model_config['data_name'])
+    data_name = os.path.join(os.path.abspath('.'),'Data',model_config['category'],model_config['data_name'])
     if model_config['mask_name'] == 'Original':
         mask_name = None
     else:
-        mask_name = os.path.join(os.path.abspath('..'),'Data',model_config['category'],model_config['mask_name'])
+        mask_name = os.path.join(os.path.abspath('.'),'Data',model_config['category'],model_config['mask_name'])
         
     dataset_name = (data_name,mask_name)
     

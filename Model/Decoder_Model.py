@@ -62,14 +62,14 @@ class Depth_Decoder(Basement_TFModel):
                     self.FreqModes.append(self.Domain_Transform(self.LineAggre[0], 0))
                     self.ShrinkOpers.append(self.ShrinkOper_orig(self.FreqModes[0]))
                     self.Multipliers.append(self.Multiplier_orig(self.FreqModes[0], self.ShrinkOpers[0]))
-                    for stage in range(1,self.stages/2):
+                    for stage in range(1,self.stages//2):
                         self.LineAggre.append(self.LinearProj_mid(sense_cross, initial_net, self.ShrinkOpers[-1], 
                                                               self.Multipliers[-1], stage))
                         self.FreqModes.append(self.Domain_Transform(self.LineAggre[stage], stage))
                         self.ShrinkOpers.append(self.ShrinkOper_mid(self.FreqModes[stage],self.Multipliers[-1],stage))
                         self.Multipliers.append(self.Multiplier_mid(self.FreqModes[stage],self.ShrinkOpers[stage],
                                                                     self.Multipliers[-1],stage))
-                    for stage in range(self.stages/2,self.stages):
+                    for stage in range(self.stages//2,self.stages):
                         self.LineAggre.append(self.LinearProj_mid(sense_cross, initial_net, self.ShrinkOpers[-1], 
                                                               self.Multipliers[-1], stage))
                         self.FreqModes.append(self.Domain_Transform(self.LineAggre[stage], stage))

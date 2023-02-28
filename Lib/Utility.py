@@ -1,13 +1,13 @@
 import tensorflow as tf
 import numpy as np
-from ms_ssim import *
+from Lib.ms_ssim import *
 
 class limit_scalar:
     def __init__(self,sense_mask):
         # In fact, check the format of the sensing matrix
         self.ratio = sense_mask.shape[-1]
         self.phi_cross = np.matmul(np.expand_dims(sense_mask,-1),np.expand_dims(sense_mask,-2))
-        print 'Sensing mask Shape %s Refer[0,1] [%.2f,%.2f]' % (sense_mask.shape,sense_mask.min(),sense_mask.max())
+        print ('Sensing mask Shape %s Refer[0,1] [%.2f,%.2f]' % (sense_mask.shape,sense_mask.min(),sense_mask.max()))
     def overlap_normalization(self,data_inout):
         (file_num, file_cnt) = data_inout
         num_sample = []
@@ -66,7 +66,7 @@ def calculate_metrics(decoded, ground, label):
     return psnr, ssim, mse
 
 def loss_SSIM(decoded,ground,label=None):
-    print decoded.get_shape().as_list(),ground.get_shape().as_list()
+    print (decoded.get_shape().as_list(),ground.get_shape().as_list())
     #return tf.constant(1.0)-tf.image.ssim_multiscale(decoded,ground,1.0)
     return tf.abs(tf.constant(1.0)-MultiScaleSSIM(decoded,ground))
     

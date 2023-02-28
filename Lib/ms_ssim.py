@@ -179,7 +179,7 @@ def MultiScaleSSIM(img1, img2, max_val=255, filter_size=11, filter_sigma=1.5,
             filtered = [kernel_blur(im, downsample_filter, pad=True, mode='VALID')
                         for im in (im1, im2)]
             im1, im2 = [x[:, ::2, ::2, :] for x in filtered]
-        print len(mcs),len(mssim)
+        print (len(mcs),len(mssim))
         mcs = tf.stack(mcs)
         mssim = tf.stack(mssim)
 
